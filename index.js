@@ -32,6 +32,11 @@ app.get("/:breed", async (req, res) => {
   const query = "SELECT * FROM breeds WHERE name = ?";
   try {
     (await getConnectionPool()).query(query, [req.params.breed], (error, results) => {
+      if (error) {
+        console.error(error);
+        res.status(500).json({error: error.toString()});
+        return;
+      }
       if (!results[0]) {
         res.status(404).json({error: `${req.params.breed} not found.`});
       }
@@ -74,6 +79,7 @@ async function accessSecret(name, version='latest') {
     return payload;
   }
   catch (ex) {
-    console.log(ex.toString());
+    console.error(ex.toString());
+    throw ex;
   }
 }
